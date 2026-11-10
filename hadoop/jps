@@ -1,7 +1,9 @@
    #!/bin/bash
+  #Via primaria (binario nativo de java)
    if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/jps" ]; then
      exec "$JAVA_HOME/bin/jps" "$@"
    fi
+   #via secundaria (Respaldo por Inspección de /proc en Linux)
    for d in /proc/[0-9]*; do
      [ -r "$d/cmdline" ] || continue
      cmd=$(tr '\0' ' ' < "$d/cmdline" 2>/dev/null) || continue

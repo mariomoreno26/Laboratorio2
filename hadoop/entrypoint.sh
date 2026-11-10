@@ -1,6 +1,8 @@
 #!/bin/bash
 # Arranca HDFS + YARN en modo pseudodistribuido dentro de un único contenedor.
 # No requiere SSH: los demonios se lanzan directamente con --daemon start.
+
+#Obliga a que el script falle si algún comando falla, si se usan variables no definidas o si un comando en un pipe falla
 set -euo pipefail
 
 HADOOP_HOME="${HADOOP_HOME:-/opt/hadoop}"
@@ -13,15 +15,17 @@ if [ ! -d /hadoop/dfs/name/current ]; then
 fi
 
 stop_all() {
-  echo ">>> Deteniendo demonios..."
+  echo ">>> Deteniendo daemons..."
   yarn --daemon stop nodemanager      || true
   yarn --daemon stop resourcemanager  || true
   hdfs --daemon stop datanode         || true
   hdfs --daemon stop namenode         || true
   exit 0
 }
+#manejo de apagado controlado para que los daemons se detengan correctamente
 trap stop_all SIGTERM SIGINT
 
+#Depliega los daemons de Hadoop en el contenedor
 echo ">>> Arrancando HDFS..."
 hdfs --daemon start namenode
 hdfs --daemon start datanode
